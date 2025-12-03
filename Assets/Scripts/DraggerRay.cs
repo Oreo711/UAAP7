@@ -1,22 +1,29 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
-
-public class DraggerRay : MonoBehaviour
+public class DraggerRay
 {
-    [SerializeField] private LayerMask _layer;
+		private LayerMask  _layer;
+		private bool       _isDragging = false;
 
-    private void Update ()
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+		public DraggerRay (LayerMask layer)
+		{
+			_layer = layer;
+		}
 
+		public  IDraggable LastDraggedObject {get; private set;}
 
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, _layer))
-        {
-            if (Input.GetMouseButton(0))
-            {
-                hit.collider.transform.position = new Vector3(hit.point.x, hit.collider.transform.position.y, hit.point.z);
-            }
-        }
-    }
+		public void Cast (Vector3 origin, Vector3 direction)
+		{
+			Ray ray = new Ray(origin, direction);
+
+			if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, _layer))
+			{
+				IDraggable draggable = hit.collider.GetComponent<IDraggable>();
+
+				LastDraggedObject = draggable;
+
+				draggable?.OnDrag(hit.point);
+			}
+		}
+
 }

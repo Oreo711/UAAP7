@@ -3,41 +3,44 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 
-public class ExplosionRay : MonoBehaviour
+public class ExplosionRay
 {
-    [SerializeField] private float       _explosionRadius;
-    [SerializeField] private LayerMask   _surface;
-    [SerializeField] private AudioSource _explosionSound;
-    [SerializeField] private GameObject  _explosionIndicator;
-    [SerializeField] private float       _indicatorLinger;
+    private float _explosionRadius;
+    private LayerMask _surface;
+    private AudioSource _explosionSound;
+    private ExplosionIndicator _explosionIndicator;
+    private float _indicatorLinger;
 
-    private void Update ()
+    public ExplosionRay (float explosionRadius, LayerMask surface, AudioSource explosionSound, ExplosionIndicator explosionIndicator, float indicatorLinger)
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        _explosionRadius    = explosionRadius;
+        _surface            = surface;
+        _explosionSound     = explosionSound;
+        _explosionIndicator = explosionIndicator;
+        _indicatorLinger    = indicatorLinger;
+    }
+
+    public void Cast (Vector3 origin, Vector3 direction)
+    {
+        Ray ray = new Ray(origin, direction);
 
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, _surface))
         {
-            if (Input.GetMouseButtonDown(1))
+
+            Collider[] hitObjects = Physics.OverlapSphere(hit.point, _explosionRadius);
+
+            foreach (Collider hitObject in hitObjects)
             {
-                Collider[] hitObjects = Physics.OverlapSphere(hit.point, _explosionRadius);
-
-                foreach (Collider hitObject in hitObjects)
+                if (hitObject.TryGetComponent(out Rigidbody rigidbody))
                 {
-                    if (hitObject.TryGetComponent(out Rigidbody rigidbody))
-                    {
-                        rigidbody.AddExplosionForce(1000, hit.point, _explosionRadius);
-
-                    }
+                    rigidbody.AddExplosionForce(1000, hit.point, _explosionRadius);
                 }
-
-                GameObject indicator = Instantiate(_explosionIndicator, hit.point, Quaternion.identity);
-                indicator.transform.localScale = new Vector3(_explosionRadius, _explosionRadius, _explosionRadius);
-
-                _explosionSound.transform.position = hit.point;
-                _explosionSound.Play();
-
-                Destroy(indicator, _indicatorLinger);
             }
+
+            _explosionSound.transform.position = hit.point;
+            _explosionSound.Play();
+
+            _explosionIndicator.Indicate(_explosionRadius, hit.point, _indicatorLinger);
         }
     }
 }
