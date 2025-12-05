@@ -26,7 +26,6 @@ public class ExplosionRay
 
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, _surface))
         {
-
             Collider[] hitObjects = Physics.OverlapSphere(hit.point, _explosionRadius);
 
             foreach (Collider hitObject in hitObjects)

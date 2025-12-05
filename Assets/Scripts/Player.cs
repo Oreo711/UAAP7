@@ -24,12 +24,12 @@ public class Player : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            _draggerRay.LastDraggedObject?.OnDragStart();
+            _draggerRay.StartDrag();
         }
 
         if (Input.GetMouseButtonUp(0))
         {
-            _draggerRay.LastDraggedObject?.OnDragEnd();
+            _draggerRay.EndDrag();
         }
 
         if (Input.GetMouseButtonDown(1))

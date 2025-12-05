@@ -10,7 +10,7 @@ public class DraggerRay
 			_layer = layer;
 		}
 
-		public  IDraggable LastDraggedObject {get; private set;}
+		public IDraggable LastDraggedObject {get; private set;}
 
 		public void Cast (Vector3 origin, Vector3 direction)
 		{
@@ -26,4 +26,13 @@ public class DraggerRay
 			}
 		}
 
+		public void StartDrag ()
+		{
+			LastDraggedObject?.OnDragStart();
+		}
+
+		public void EndDrag ()
+		{
+			LastDraggedObject?.OnDragEnd();
+		}
 }
