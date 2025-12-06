@@ -22,7 +22,7 @@ public class Player : MonoBehaviour
             _draggerRay.Cast(Camera.main.transform.position, Camera.main.ScreenPointToRay(Input.mousePosition).direction);
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && _draggerRay.IsHoveringOverDraggable)
         {
             _draggerRay.StartDrag();
         }

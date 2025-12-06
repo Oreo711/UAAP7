@@ -1,16 +1,19 @@
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class DraggerRay
 {
-		private LayerMask  _layer;
-		private bool       _isDragging = false;
+		private LayerMask _layer;
+		private bool _isDragging = false;
+		private IDraggable _hoveredOverDraggable;
 
 		public DraggerRay (LayerMask layer)
 		{
 			_layer = layer;
 		}
 
-		public IDraggable LastDraggedObject {get; private set;}
+		public IDraggable DraggedObject           {get; private set;}
+		public bool       IsHoveringOverDraggable {get; private set;}
 
 		public void Cast (Vector3 origin, Vector3 direction)
 		{
@@ -18,21 +21,35 @@ public class DraggerRay
 
 			if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, _layer))
 			{
-				IDraggable draggable = hit.collider.GetComponent<IDraggable>();
+				IsHoveringOverDraggable = true;
+				_hoveredOverDraggable = hit.collider.GetComponent<IDraggable>();
+			}
+			else
+			{
+				IsHoveringOverDraggable = false;
+				_hoveredOverDraggable = null;
+			}
 
-				LastDraggedObject = draggable;
-
-				draggable?.OnDrag(hit.point);
+			if (_isDragging)
+			{
+				if (Physics.Raycast(ray, out RaycastHit surfaceHit))
+				{
+					DraggedObject?.OnDrag(surfaceHit.point);
+				}
 			}
 		}
 
 		public void StartDrag ()
 		{
-			LastDraggedObject?.OnDragStart();
+			DraggedObject = _hoveredOverDraggable;
+			DraggedObject?.OnDragStart();
+			_isDragging = true;
 		}
 
 		public void EndDrag ()
 		{
-			LastDraggedObject?.OnDragEnd();
+			_isDragging = false;
+			DraggedObject?.OnDragEnd();
+			DraggedObject = null;
 		}
 }
